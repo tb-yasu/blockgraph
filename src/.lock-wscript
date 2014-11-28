@@ -1,0 +1,9 @@
+argv = ['./waf', 'configure']
+blddir = '/Users/tabei/Prog/cpp/proj_blockgraph/blockgraph-0.0.1/src/build'
+commands = {'dist': 0, 'configure': True, 'distcheck': 0, 'install': 0, 'build': 0, 'clean': 0, 'distclean': 0, 'check': 0, 'uninstall': 0}
+cwd = '/Users/tabei/Prog/cpp/proj_blockgraph/blockgraph-0.0.1/src'
+environ = {'TERM_SESSION_ID': '42945410-4412-4577-83EC-2906FC52CDFB', 'SSH_AUTH_SOCK': '/private/tmp/com.apple.launchd.C9DqwZPCzC/Listeners', 'VERSIONER_PYTHON_PREFER_32_BIT': 'no', 'TERM_PROGRAM_VERSION': '343', 'Apple_PubSub_Socket_Render': '/private/tmp/com.apple.launchd.Z1gMqehtoK/Render', 'LOGNAME': 'tabei', 'USER': 'tabei', 'XPC_SERVICE_NAME': '0', 'HOME': '/Users/tabei', 'PATH': '/opt/local/bin:/opt/local/sbin:/Library/Frameworks/Python.framework/Versions/2.7/bin:/opt/local/bin:/opt/local/sbin:/opt/local/bin:/opt/local/sbin:/Applications/Octave.app/Contents/Resources/bin:/usr/local/bin:/Users/tabei/local/pythonbrew/bin:/Developer/usr/lib:/Developer/usr/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:/usr/texbin', 'DISPLAY': '/private/tmp/com.apple.launchd.mnVX8Q1Tcb/org.macosforge.xquartz:0', '_': './waf', 'TERM_PROGRAM': 'Apple_Terminal', 'LANG': 'ja_JP.UTF-8', 'TERM': 'xterm-256color', 'SHELL': '/bin/bash', 'VERSIONER_PYTHON_VERSION': '2.7', 'SHLVL': '1', 'OLDPWD': '/Users/tabei/Prog/cpp/proj_blockgraph/waf', 'XPC_FLAGS': '0x0', '__CF_USER_TEXT_ENCODING': '0x1F5:0x1:0xE', 'GTEST_DIR': '/Users/tabei/Bin/googletest/', 'PWD': '/Users/tabei/Prog/cpp/proj_blockgraph/blockgraph-0.0.1/src', 'TMPDIR': '/var/folders/wt/rfsmr0k53832dbml2hskpsh80000gn/T/', 'MANPATH': '/opt/local/man:'}
+files = []
+hash = 0
+options = {'compile_targets': None, 'force': False, 'verbose': 0, 'nocache': False, 'progress_bar': 0, 'destdir': '', 'keep': False, 'zones': '', 'blddir': '', 'prefix': '/usr/local/', 'jobs': 4, 'srcdir': '', 'check_cxx_compiler': 'g++'}
+srcdir = '/Users/tabei/Prog/cpp/proj_blockgraph/blockgraph-0.0.1/src'

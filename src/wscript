@@ -1,0 +1,20 @@
+def options(ctx):
+    pass
+    
+def configure(ctx):
+    pass
+
+def build(bld):
+    bld.shlib(
+       source       = 'BlockGraph.cpp RSDic.cpp RSDicBuilder.cpp EnumCoder.cpp',
+       target       = 'BlockGraph',
+       name         = 'BlockGraph',
+       use          = '',
+       includes     = '.')
+    bld.program(
+	features = 'cxx cprogram',
+        source   = 'BlockGraphTest.cpp',
+	target   = 'main',
+	use      = 'BlockGraph',
+	includes = '.')
+    bld.install_files('${PREFIX}/include/blockgraph', bld.path.ant_glob('*.hpp'))
