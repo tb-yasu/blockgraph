@@ -62,6 +62,10 @@ uint64_t BlockGraph::getRec(uint64_t blockid, uint64_t pos, uint64_t blocklength
   Node &node = nodes[level][nodeid];
   uint64_t o = node.offset_;
   uint64_t p = node.pos_ + pos;
+  if (p >= blocklength) {
+    ++o; p %= blocklength;
+  }
+   
   return getRec(o, p, blocklength, level);
 }
 
