@@ -39,7 +39,6 @@ void BlockGraph::adjustString(std::vector<uint8_t> &str) {
   uint64_t len = blocklength_ * (div + 1);
   uint64_t size = str.size();
   str.resize(len);
-  cerr << size << " " << len << endl;
   for (size_t i = size; i < len; ++i) 
     str[i] = NONE;
 }
@@ -227,7 +226,6 @@ void BlockGraph::markBlock(vector<uint8_t> &str, vector<pair<uint64_t, uint64_t>
 }
 
 void BlockGraph::buildBlockGraphRec(vector<uint8_t> &str, vector<pair<uint64_t, uint64_t> > &blocks, uint64_t level, vector<vector<uint32_t> > &ranks, bool rankflag) {
-  cerr << "level : " << level << endl;
   vector<pair<uint8_t, uint64_t> > checker;
   markBlock(str, blocks, checker);
   nodes.resize(nodes.size() + 1);
