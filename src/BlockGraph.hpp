@@ -56,9 +56,8 @@ struct Node {
     os.write((const char*)(&offset_), sizeof(offset_));
     os.write((const char*)(&pos_), sizeof(pos_));
     {
-      size_t size;
+      size_t size = rank.size();
       os.write((const char*)(&size), sizeof(size));
-      rank.resize(size);
       os.write((const char*)(&rank[0]), sizeof(uint32_t) * size);
     }
   }
