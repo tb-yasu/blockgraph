@@ -25,7 +25,7 @@ uint64_t BlockGraph::NPOS = 0xffffffffffffffff;
 
 void BlockGraph::compMaxVal(const vector<uint8_t> &str) {
   uint64_t maxVal = 0;
-  for (size_t i = 0; i < str.size(); ++i) {
+  for (size_t i = 0; i != str.size(); ++i) {
     if (maxVal < str[i])
       maxVal = str[i];
   }
@@ -39,7 +39,7 @@ void BlockGraph::adjustString(std::vector<uint8_t> &str) {
   uint64_t len = blocklength_ * (div + 1);
   uint64_t size = str.size();
   str.resize(len);
-  for (size_t i = size; i < len; ++i) 
+  for (size_t i = size; i != len; ++i) 
     str[i] = NONE;
 }
 
@@ -131,7 +131,7 @@ uint64_t BlockGraph::rankRec(uint64_t blockid, uint64_t pos, uint8_t val, uint64
       uint64_t count = leaves[level][blockid - num1].rank[val];
       if (flag)
 	count = 0;
-      for (size_t i = 0; i < pos; ++i) {
+      for (size_t i = 0; i != pos; ++i) {
 	if (leaves[level][blockid-num1].str[i] == val)
 	  count++;
       }
@@ -142,7 +142,7 @@ uint64_t BlockGraph::rankRec(uint64_t blockid, uint64_t pos, uint8_t val, uint64
 
     uint64_t rank = 0;
     if (flag) {
-      for (size_t i = 0; i < pos/childblocklength; ++i)
+      for (size_t i = 0, len = pos/childblocklength; i != len; ++i)
 	rank += rankRec(num0*arity_ + i, childblocklength, val, childblocklength, level + 1, flag);
     }
     return rankRec(num0*arity_ + pos/childblocklength, pos%childblocklength, val, childblocklength, level + 1, flag) + rank;
@@ -169,7 +169,7 @@ uint64_t BlockGraph::select(uint64_t i, uint8_t val) {
     else {
       while ((pivot > 0) && (get(pivot) != val)) 
 	pivot++;
-      return pivot;
+      return pivot + 1;
     }
   }
   return NPOS;
@@ -191,37 +191,39 @@ uint64_t BlockGraph::compHeight(uint64_t blocklength, uint64_t arity) {
 }
 
 void BlockGraph::markBlock(vector<uint8_t> &str, vector<pair<uint64_t, uint64_t> > &blocks, vector<pair<uint8_t, uint64_t> > &checker) {
-  vector<vector<uint8_t> > patterns(blocks.size());
-  RabinKarp<uint8_t> rk;
+  uint64_t pLen = 0;
   for (size_t i = 0; i < blocks.size() - 1; ++i) {
     pair<uint64_t, uint64_t> &block1 = blocks[i];
     pair<uint64_t, uint64_t> &block2 = blocks[i + 1];
     if (block1.second + 1 == block2.first) {
-      vector<uint8_t> &pattern = patterns[i];
-      for (size_t j = block1.first; j <= block1.second; ++j) 
-	pattern.push_back(str[j]);
-      for (size_t j = block2.first; j <= block2.second; ++j) 
-	pattern.push_back(str[j]);
-      rk.addElements(pattern, block1.first, i);
+      pLen = block2.second - block1.first + 1;
+      break;
     }
   }
-  
+  vector<uint64_t> patterns;
+  RabinKarp<uint8_t> rk;
+  for (size_t i = 0; i < blocks.size() - 1; ++i) {
+    pair<uint64_t, uint64_t> &block1 = blocks[i];
+    pair<uint64_t, uint64_t> &block2 = blocks[i + 1];
+    if (block1.second + 1 == block2.first)
+      rk.addElements(str, block1.first, pLen, i);
+  }
   vector<pair<uint64_t, uint64_t> > res;
-  uint64_t pLen = patterns[0].size();
-  rk.patternMatch(str, patterns, pLen, res);
+  rk.patternMatch(str, pLen, res);
   checker.resize(blocks.size());
   bool flag = true;
-  for (size_t i = 0; i < res.size(); ++i) {
+  for (size_t i = 0; i != res.size(); ++i) {
     uint64_t id = res[i].first;
     checker[id].first++; checker[id + 1].first++;
     checker[id].second = res[i].second;
-    if (flag)
+    if (flag) {
       checker[id].first++;
-    else if (blocks[id + 1].second + 1 == str.size())
-      checker[id + 1].first++;
-    flag = false;
-    if (blocks[id].second + 1 == blocks[id+1].first)
+      flag = false;
+    }
+    if (id + 1 < blocks.size() && blocks[id].second + 1 != blocks[id+1].first)
       flag = true;
+    if (id < blocks.size() && blocks[id + 1].second + 1 == str.size())
+      checker[id + 1].first++;
   }
 }
 
@@ -232,12 +234,12 @@ void BlockGraph::buildBlockGraphRec(vector<uint8_t> &str, vector<pair<uint64_t, 
   leaves.resize(leaves.size() + 1);
   rsdicdbs_.resize(rsdicdbs_.size() + 1);
   vector<uint64_t> blockcheker;
-  for (size_t i = 0; i < checker.size(); ++i) {
+  for (size_t i = 0; i != checker.size(); ++i) {
     if (checker[i].first == 2) {
       uint64_t respos = checker[i].second;
       Node node;
       size_t nodeid;
-      for (nodeid = 0; nodeid < blocks.size(); ++nodeid) {
+      for (nodeid = 0; nodeid != blocks.size(); ++nodeid) {
 	if (blocks[nodeid].first <= respos && respos <= blocks[nodeid].second) {
 	  node.offset_ = respos/(blocks[nodeid].second - blocks[nodeid].first + 1);
 	  node.pos_    = respos%(blocks[nodeid].second - blocks[nodeid].first + 1);
@@ -279,7 +281,7 @@ void BlockGraph::buildBlockGraphRec(vector<uint8_t> &str, vector<pair<uint64_t, 
     vector<uint32_t> counter;
     if (rankflag)
       counter = ranks[id];
-    for (size_t j = 0; j < arity_; ++j) {
+    for (size_t j = 0; j != arity_; ++j) {
       newblocks.push_back(make_pair(start, start + len - 1));
       if (rankflag) {
 	newranks.push_back(counter);
@@ -293,7 +295,7 @@ void BlockGraph::buildBlockGraphRec(vector<uint8_t> &str, vector<pair<uint64_t, 
     }
   }
 
-  for (size_t i = 0; i < checker.size(); ++i) {
+  for (size_t i = 0; i != checker.size(); ++i) {
     if (checker[i].first == 2) {
       uint64_t spos = blocks[i].first;
       uint64_t epos = blocks[i].second;
@@ -301,7 +303,9 @@ void BlockGraph::buildBlockGraphRec(vector<uint8_t> &str, vector<pair<uint64_t, 
 	str[j] = NONE;
     }
   }
-  
+
+  vector<pair<uint8_t, uint64_t> >().swap(checker);
+  vector<pair<uint64_t, uint64_t> >().swap(blocks);
   buildBlockGraphRec(str, newblocks, level + 1, newranks, rankflag);
 }
 
@@ -318,7 +322,7 @@ void BlockGraph::buildBlockGraph(std::vector<uint8_t> &str, uint64_t arity, uint
 
   vector<uint32_t> counter(NONE);
   uint64_t start = 0;
-  for (size_t i = 0; i < num; ++i) {
+  for (size_t i = 0; i != num; ++i) {
     blocks.push_back(make_pair(start, start + blocklength_ - 1));
     if (rankflag) {
       ranks.push_back(counter);
@@ -345,11 +349,11 @@ void BlockGraph::load(istream &is) {
     size_t size;
     is.read((char*)(&size), sizeof(size));
     nodes.resize(size);
-    for (size_t i = 0; i < size; ++i) {
+    for (size_t i = 0; i != size; ++i) {
       size_t size2;
       is.read((char*)(&size2), sizeof(size2));
       nodes[i].resize(size2);
-      for (size_t j = 0; j < size2; ++j)
+      for (size_t j = 0; j != size2; ++j)
 	nodes[i][j].load(is);
     }
   }
@@ -357,11 +361,11 @@ void BlockGraph::load(istream &is) {
     size_t size;
     is.read((char*)(&size), sizeof(size));
     leaves.resize(size);
-    for (size_t i = 0; i < size; ++i) {
+    for (size_t i = 0; i != size; ++i) {
       size_t size2;
       is.read((char*)(&size2), sizeof(size2));
       leaves[i].resize(size2);
-      for (size_t j = 0; j < size2; ++j)
+      for (size_t j = 0; j != size2; ++j)
 	leaves[i][j].load(is);
     }
   }
@@ -369,7 +373,7 @@ void BlockGraph::load(istream &is) {
     size_t size;
     is.read((char*)(&size), sizeof(size));
     rsdics_.resize(size);
-    for (size_t i = 0; i < size; ++i)
+    for (size_t i = 0; i != size; ++i)
       rsdics_[i].Load(is);
   }
   is.read((char*)(&blocklength_), sizeof(blocklength_));
@@ -383,27 +387,27 @@ void BlockGraph::save(ostream &os) {
   {
     size_t size = nodes.size();
     os.write((const char*)(&size), sizeof(size));
-    for (size_t i = 0; i < size; ++i) {
+    for (size_t i = 0; i != size; ++i) {
       size_t size2 = nodes[i].size();
       os.write((const char*)(&size2), sizeof(size2));
-      for (size_t j = 0; j < size2; ++j) 
+      for (size_t j = 0; j != size2; ++j) 
 	nodes[i][j].save(os);
     }
   }
   {
     size_t size = leaves.size();
     os.write((const char*)(&size), sizeof(size));
-    for (size_t i = 0; i < size; ++i) {
+    for (size_t i = 0; i != size; ++i) {
       size_t size2 = leaves[i].size();
       os.write((const char*)(&size2), sizeof(size2));
-      for (size_t j = 0; j < size2; ++j) 
+      for (size_t j = 0; j != size2; ++j) 
 	leaves[i][j].save(os);
     }
   }
   {
     size_t size = rsdics_.size();
     os.write((const char*)(&size), sizeof(size));
-    for (size_t i = 0; i < size; ++i) 
+    for (size_t i = 0; i != size; ++i) 
       rsdics_[i].Save(os);
   }
   os.write((const char*)(&blocklength_), sizeof(blocklength_));
@@ -415,15 +419,15 @@ void BlockGraph::save(ostream &os) {
 
 uint64_t BlockGraph::getBytes() {
   uint64_t size = 0;
-  for (size_t i = 0; i < nodes.size(); ++i) {
-    for (size_t j = 0; j < nodes[i].size(); ++j)
+  for (size_t i = 0; i != nodes.size(); ++i) {
+    for (size_t j = 0; j != nodes[i].size(); ++j)
       size += nodes[i][j].getBytes();
   }
-  for (size_t i = 0; i < leaves.size(); ++i) {
-    for (size_t j = 0; j < leaves[i].size(); ++j)
+  for (size_t i = 0; i != leaves.size(); ++i) {
+    for (size_t j = 0; j != leaves[i].size(); ++j)
       size += leaves[i][j].getBytes();
   }
-  for (size_t i = 0; i < rsdics_.size(); ++i)
+  for (size_t i = 0; i != rsdics_.size(); ++i)
     size += rsdics_[i].GetUsageBytes();
   size += 5 * sizeof(uint64_t);
   size += sizeof(uint8_t);
