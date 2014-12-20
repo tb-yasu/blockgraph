@@ -33,12 +33,12 @@
 #include "RSDic.hpp"
 
 struct Node {
-  uint64_t offset_;
+  uint16_t offset_;
   uint64_t pos_;
   std::vector<uint32_t> rank;
   
   Node() {
-    offset_ = pos_ = 0ULL;
+    offset_ = pos_ = 0;
   }
 
   void load(std::istream &is) {
