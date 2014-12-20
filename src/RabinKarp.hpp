@@ -27,6 +27,8 @@
 #include <cmath>
 #include <stdint.h>
 #include <unordered_map>
+#include "RabinKarp.hpp"
+#include "BlockGraphUtil.hpp"
 
 template <typename Type>
 class RabinKarp {
@@ -50,14 +52,15 @@ private:
   }
 public:
   RabinKarp() {
-    prime = 101;
+    prime = PRIME;
   }
-  void addElements(std::vector<Type> &str, uint64_t pos, uint64_t id) {
-    uint64_t hashVal = compHash(str, 0, str.size() - 1, 0);
+
+  void addElements(std::vector<Type> &str, uint64_t pos, uint64_t pLen ,uint64_t id) {
+    uint64_t hashVal = compHash(str, pos, pos + pLen - 1, 0);
     hashtables[hashVal].push_back(std::make_pair(pos, id));
   }
-  
-  void patternMatch(std::vector<Type> &str, std::vector<std::vector<Type> > &patterns, uint64_t pLen, std::vector<std::pair<uint64_t, uint64_t> > &res) {
+
+  void patternMatch(std::vector<Type> &str, uint64_t pLen, std::vector<std::pair<uint64_t, uint64_t> > &res) {
     if (str.size() < pLen)
       return;
 
@@ -66,29 +69,24 @@ public:
       std::unordered_map<uint64_t, std::vector<std::pair<uint64_t, uint64_t> > >::iterator it = hashtables.find(hashval);
       if (it != hashtables.end()) {
 	std::vector<std::pair<uint64_t, uint64_t> > &ids = it->second;
-	for (size_t j = 0; j < ids.size(); ++j) {
-	  uint64_t pos = ids[j].first;
-	  if (pos <= i)
-	    continue;
-	  uint64_t id  = ids[j].second;
-	  std::vector<Type> &pattern = patterns[id];
-	  bool flag = true;
-	  if (pLen != pattern.size()) {
-	    std::cerr << "error : " << pLen << " " << pattern.size() << " " << id << " " << patterns.size() << std::endl;
-	    exit(1);
-	  }
-	  for (size_t k = 0; k < pLen; ++k) {
-	    if (pattern[k] != str[i + k]) {
-	      flag = false;
-	      break;
-	    }
-	  }
-	  if (flag) 
-	    res.push_back(std::make_pair(id, i));
-	}
+        for (size_t j = 0; j < ids.size(); ++j) {
+          uint64_t pos = ids[j].first;
+          if (pos <= i)
+            continue;
+          uint64_t id  = ids[j].second;
+          bool flag = true;
+          for (size_t k = 0; k != pLen; ++k) {
+            if (str[pos + k] != str[i + k]) {
+              flag = false;
+              break;
+            }
+          }
+          if (flag)
+            res.push_back(std::make_pair(id, i));
+        }
       }
       if (i < str.size() - pLen)
-	hashval = compHash(str, i + 1, i + pLen, hashval);
+        hashval = compHash(str, i + 1, i + pLen, hashval);
     }
   }
 private:
