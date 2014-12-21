@@ -104,7 +104,7 @@ struct Leaf {
   }
   uint64_t getBytes() {
     uint64_t size = 0;
-    size += sizeof(Type) * size;
+    size += sizeof(Type) * str.size();
     size += sizeof(uint32_t) * rank.size();
     return size;
   }
@@ -113,26 +113,26 @@ struct Leaf {
 class BlockGraph {
 private:
   uint64_t compHeight(uint64_t blocklength, uint64_t arity);
-  void     compMaxVal(const std::vector<uint8_t> &str);
-  void     markBlock(std::vector<uint8_t> &str, std::vector<std::pair<uint64_t, uint64_t> > &blocks, std::vector<std::pair<uint8_t, uint64_t> > &checker);
-  void     buildBlockGraphRec(std::vector<uint8_t> &str, std::vector<std::pair<uint64_t, uint64_t> > &blocks, uint64_t level, std::vector<std::vector<uint32_t> > &ranks, bool rankflag);
+  void     compMaxVal(const std::vector<CTYPE> &str);
+  void     markBlock(std::vector<CTYPE> &str, std::vector<std::pair<uint64_t, uint64_t> > &blocks, std::vector<std::pair<CTYPE, uint64_t> > &checker);
+  void     buildBlockGraphRec(std::vector<CTYPE> &str, std::vector<std::pair<uint64_t, uint64_t> > &blocks, uint64_t level, std::vector<std::vector<uint32_t> > &ranks, bool rankflag);
   void     buildRSDics();
-  void     adjustString(std::vector<uint8_t> &str);
+  void     adjustString(std::vector<CTYPE> &str);
   uint64_t getRec(uint64_t blockid, uint64_t pos, uint64_t blocklength, uint64_t level);
-  void     accessRec(uint64_t blockid, uint64_t from, uint64_t to, uint64_t blocklength, uint64_t level, std::vector<uint8_t> &res);
-  uint64_t rankRec(uint64_t blockid, uint64_t pos, uint8_t val, uint64_t blocklength, uint64_t level ,bool flag);
+  void     accessRec(uint64_t blockid, uint64_t from, uint64_t to, uint64_t blocklength, uint64_t level, std::vector<CTYPE> &res);
+  uint64_t rankRec(uint64_t blockid, uint64_t pos, CTYPE val, uint64_t blocklength, uint64_t level ,bool flag);
 public:
-  void     buildBlockGraph(std::vector<uint8_t> &str, uint64_t arity, uint64_t height, bool rankflag);
+  void     buildBlockGraph(std::vector<CTYPE> &str, uint64_t arity, uint64_t height, bool rankflag);
   uint64_t get(uint64_t i);
-  void     access(uint64_t from, uint64_t to, std::vector<uint8_t> &res);
-  uint64_t rank(uint64_t pos, uint8_t val);
-  uint64_t select(uint64_t i, uint8_t val);
+  void     access(uint64_t from, uint64_t to, std::vector<CTYPE> &res);
+  uint64_t rank(uint64_t pos, CTYPE val);
+  uint64_t select(uint64_t i, CTYPE val);
   void     load(std::istream &is);
   void     save(std::ostream &os);
   uint64_t getBytes();
 private:
   std::vector<std::vector<Node> > nodes;
-  std::vector<std::vector<Leaf<uint8_t> > > leaves;
+  std::vector<std::vector<Leaf<CTYPE> > > leaves;
   std::vector<rsdic::RSDicBuilder> rsdicdbs_;
   std::vector<rsdic::RSDic> rsdics_;
   uint64_t blocklength_;
@@ -140,6 +140,6 @@ private:
   uint64_t height_;
   uint64_t txtlength_;
   
-  uint8_t NONE;
+  CTYPE NONE;
   static uint64_t NPOS;
 };
