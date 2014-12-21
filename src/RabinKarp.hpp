@@ -35,7 +35,7 @@ class RabinKarp {
 private:
   uint64_t compHash(std::vector<Type> &str, uint64_t from, uint64_t to, uint64_t prevHash) {
     uint64_t val;
-    uint64_t len = to - from;
+    uint64_t len = std::min(to - from, 5ULL);
 
     if (from > 0) {
       val = prevHash;
@@ -45,8 +45,11 @@ private:
     }
     else {
       val = 0;
-      for (size_t i = from; i <= to; ++i) 
+      for (size_t i = from; i <= to; ++i)  {
+	if (len == 0)
+	  break;
 	val += str[i] * pow(prime, len--);
+      }
     }
     return val;  
   }
@@ -66,6 +69,9 @@ public:
 
     uint64_t hashval = compHash(str, 0, pLen - 1, 0);
     for (size_t i = 0; i <= str.size() - pLen; ++i) {
+      //      if (i % 10000 == 0) {
+	//	std::cout << i << " " << str.size() << std::endl;
+      //      }
       std::unordered_map<uint64_t, std::vector<std::pair<uint64_t, uint64_t> > >::iterator it = hashtables.find(hashval);
       if (it != hashtables.end()) {
 	std::vector<std::pair<uint64_t, uint64_t> > &ids = it->second;
