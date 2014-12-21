@@ -23,7 +23,7 @@ using namespace::std;
 
 uint64_t BlockGraph::NPOS = 0xffffffffffffffff;
 
-void BlockGraph::compMaxVal(const vector<uint8_t> &str) {
+void BlockGraph::compMaxVal(const vector<CTYPE> &str) {
   uint64_t maxVal = 0;
   for (size_t i = 0; i != str.size(); ++i) {
     if (maxVal < str[i])
@@ -32,7 +32,7 @@ void BlockGraph::compMaxVal(const vector<uint8_t> &str) {
   NONE = maxVal + 1;
 }
 
-void BlockGraph::adjustString(std::vector<uint8_t> &str) {
+void BlockGraph::adjustString(std::vector<CTYPE> &str) {
   if (str.size()%blocklength_ == 0)
     return;
   uint64_t div = str.size()/blocklength_;
@@ -68,7 +68,7 @@ uint64_t BlockGraph::getRec(uint64_t blockid, uint64_t pos, uint64_t blocklength
   return getRec(o, p, blocklength, level);
 }
 
-void BlockGraph::access(uint64_t from, uint64_t to, vector<uint8_t> &res) {
+void BlockGraph::access(uint64_t from, uint64_t to, vector<CTYPE> &res) {
   uint64_t epos = from;
   for (size_t spos = from; spos <= to; ++spos) {
     uint64_t id = spos/blocklength_;
@@ -78,7 +78,7 @@ void BlockGraph::access(uint64_t from, uint64_t to, vector<uint8_t> &res) {
   }
 }
 
-void BlockGraph::accessRec(uint64_t blockid, uint64_t from, uint64_t to, uint64_t blocklength, uint64_t level, vector<uint8_t> &res) {
+void BlockGraph::accessRec(uint64_t blockid, uint64_t from, uint64_t to, uint64_t blocklength, uint64_t level, vector<CTYPE> &res) {
   if (rsdics_[level].GetBit(blockid) == 0) {
     if (level == height_) {
       uint64_t num1 = rsdics_[level].Rank(blockid, 1);
@@ -116,11 +116,11 @@ void BlockGraph::accessRec(uint64_t blockid, uint64_t from, uint64_t to, uint64_
   }
 }
 
-uint64_t BlockGraph::rank(uint64_t pos, uint8_t val) {
+uint64_t BlockGraph::rank(uint64_t pos, CTYPE val) {
   return rankRec(pos/blocklength_, pos%blocklength_, val, blocklength_, 0, false);
 }
 
-uint64_t BlockGraph::rankRec(uint64_t blockid, uint64_t pos, uint8_t val, uint64_t blocklength, uint64_t level ,bool flag) {
+uint64_t BlockGraph::rankRec(uint64_t blockid, uint64_t pos, CTYPE val, uint64_t blocklength, uint64_t level ,bool flag) {
   if (rsdics_[level].GetBit(blockid) == 0) {
     if (level == height_) { // leaf
       if (rsdics_[level].num() == blockid) {
@@ -158,7 +158,7 @@ uint64_t BlockGraph::rankRec(uint64_t blockid, uint64_t pos, uint8_t val, uint64
   return rankRec(o, p, val, blocklength, level, true) + rank;
 }
 
-uint64_t BlockGraph::select(uint64_t i, uint8_t val) {
+uint64_t BlockGraph::select(uint64_t i, CTYPE val) {
   uint64_t left  = 0;
   uint64_t right = txtlength_;
   while (left < right) {
@@ -190,7 +190,7 @@ uint64_t BlockGraph::compHeight(uint64_t blocklength, uint64_t arity) {
   return height;
 }
 
-void BlockGraph::markBlock(vector<uint8_t> &str, vector<pair<uint64_t, uint64_t> > &blocks, vector<pair<uint8_t, uint64_t> > &checker) {
+void BlockGraph::markBlock(vector<CTYPE> &str, vector<pair<uint64_t, uint64_t> > &blocks, vector<pair<CTYPE, uint64_t> > &checker) {
   uint64_t pLen = 0;
   for (size_t i = 0; i < blocks.size() - 1; ++i) {
     pair<uint64_t, uint64_t> &block1 = blocks[i];
@@ -201,7 +201,7 @@ void BlockGraph::markBlock(vector<uint8_t> &str, vector<pair<uint64_t, uint64_t>
     }
   }
   vector<uint64_t> patterns;
-  RabinKarp<uint8_t> rk;
+  RabinKarp<CTYPE> rk;
   for (size_t i = 0; i < blocks.size() - 1; ++i) {
     pair<uint64_t, uint64_t> &block1 = blocks[i];
     pair<uint64_t, uint64_t> &block2 = blocks[i + 1];
@@ -227,8 +227,8 @@ void BlockGraph::markBlock(vector<uint8_t> &str, vector<pair<uint64_t, uint64_t>
   }
 }
 
-void BlockGraph::buildBlockGraphRec(vector<uint8_t> &str, vector<pair<uint64_t, uint64_t> > &blocks, uint64_t level, vector<vector<uint32_t> > &ranks, bool rankflag) {
-  vector<pair<uint8_t, uint64_t> > checker;
+void BlockGraph::buildBlockGraphRec(vector<CTYPE> &str, vector<pair<uint64_t, uint64_t> > &blocks, uint64_t level, vector<vector<uint32_t> > &ranks, bool rankflag) {
+  vector<pair<CTYPE, uint64_t> > checker;
   markBlock(str, blocks, checker);
   nodes.resize(nodes.size() + 1);
   leaves.resize(leaves.size() + 1);
@@ -257,7 +257,7 @@ void BlockGraph::buildBlockGraphRec(vector<uint8_t> &str, vector<pair<uint64_t, 
       if (level == height_) {
 	uint64_t spos = blocks[i].first;
 	uint64_t epos = blocks[i].second;
-	Leaf<uint8_t> leaf;
+	Leaf<CTYPE> leaf;
 	for (size_t j = spos; j <= epos; ++j) 
 	  leaf.str.push_back(str[j]);
 	if (rankflag) 
@@ -304,12 +304,12 @@ void BlockGraph::buildBlockGraphRec(vector<uint8_t> &str, vector<pair<uint64_t, 
     }
   }
 
-  vector<pair<uint8_t, uint64_t> >().swap(checker);
+  vector<pair<CTYPE, uint64_t> >().swap(checker);
   vector<pair<uint64_t, uint64_t> >().swap(blocks);
   buildBlockGraphRec(str, newblocks, level + 1, newranks, rankflag);
 }
 
-void BlockGraph::buildBlockGraph(std::vector<uint8_t> &str, uint64_t arity, uint64_t height,   bool rankflag) {
+void BlockGraph::buildBlockGraph(std::vector<CTYPE> &str, uint64_t arity, uint64_t height,   bool rankflag) {
   arity_  = arity;
   height_ = height;
   blocklength_ = pow(arity_, height_ + 1);
@@ -430,6 +430,6 @@ uint64_t BlockGraph::getBytes() {
   for (size_t i = 0; i != rsdics_.size(); ++i)
     size += rsdics_[i].GetUsageBytes();
   size += 5 * sizeof(uint64_t);
-  size += sizeof(uint8_t);
+  size += sizeof(CTYPE);
   return size;
 }
