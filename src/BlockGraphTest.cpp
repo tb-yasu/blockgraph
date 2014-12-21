@@ -1,14 +1,22 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include "stdint.h"
+#include <time.h>
+#include <sys/time.h>
 
+#include "stdint.h"
 #include "BlockGraph.hpp"
 
 using namespace std;
 
+double gettimeofday_sec()
+{
+  struct timeval tv;
+  gettimeofday(&tv, NULL);
+  return tv.tv_sec + (double)tv.tv_usec*1e-6;
+}
 
-int main(int argc, char **argv){
+int test1(int argc, char **argv){
   vector<uint8_t> str;
   str.push_back('N'); //0
   str.push_back('N'); //1
@@ -93,5 +101,38 @@ int main(int argc, char **argv){
     cout << "rank T : " << i << " " << bg.rank(i, 'T') << endl;
 
   cout << "select T : " << 3 << " " << bg.select(3, 'T') << endl;
+}
+
+int test2(int argc, char **argv) {
+  ifstream ifs(argv[1]);
+  vector<uint8_t> str;
+  string line;
+  while (getline(ifs, line)) {
+    for (size_t i = 0; i < line.size(); ++i)
+      str.push_back(line[i]);
+  }
+
+  uint64_t num = 100;
+  uint64_t height = 3;
+  cout << "access test" << endl;
+  for (size_t arity = 5; arity <= 10; arity+=2) {
+    BlockGraph bg;
+    double stime = gettimeofday_sec();
+    bg.buildBlockGraph(str, arity, height, false);
+    cout << "arity : "<< arity << " height : " << height << " size (MB) : " << bg.getBytes()/1024.f/1024.f << endl;
+    cout << "construction time (sec): "<< gettimeofday_sec() - stime << endl;
+    stime = gettimeofday_sec();
+    for (size_t i = 0; i < num; ++i) {
+      bg.get(rand()%str.size());
+    }
+    cout << "access time : " << (gettimeofday_sec() - stime)/(double)num << endl;
+  }
+}
+
+int main(int argc, char **argv) {
+  //  test1(argc, argv);
+  test2(argc, argv);
+
+  
 }
 
